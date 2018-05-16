@@ -10,7 +10,6 @@
     <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
     <orderEntry type="library" name="org.apache.commons:commons-lang3:3.6" level="project" />
     <orderEntry type="library" name="com.h2database:h2:1.4.185" level="project" />
-    <orderEntry type="library" name="jssc-2.8.0-arduino1" level="project" />
     <orderEntry type="library" name="opencsv-4.1" level="project" />
   </component>
 </module>
