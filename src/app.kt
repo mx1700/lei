@@ -1,34 +1,23 @@
-import org.apache.commons.lang3.StringEscapeUtils
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import com.sun.xml.internal.ws.streaming.XMLStreamReaderUtil.close
 import com.opencsv.CSVWriter
-import java.io.FileWriter
-import java.io.Writer
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 import java.io.BufferedWriter
 
 
-
-
-
 fun main(args: Array<String>) {
     //val files = args.map { File(it) };
-    val files = File("D:\\lei2\\OA接入网扫描168.52.6网段-指定IP\\142_兴业银行6段ip_2018_05_03_html\\host").listFiles()
-//    val args = arrayOf("D:\\Users\\x1\\Desktop\\lei\\接入网\\453_辽宁-联通-复测-接入网网管-全端口_2017_11_06_html\\host\\132.193.40.52.html", "D:/Users/x1/Desktop/123/host/192.168.10.43.html");
+    val files = File(args[0]).listFiles()
     val htmlFiles = files.filter { it.isFile && it.extension == "html" }
     error("Files: " + htmlFiles.map { it.name }.joinToString(", "))
     error()
     val hosts = htmlFiles.map { Host(it.readText()) }
-    output(getLines(hosts))
+    output(getLines(hosts), args[1])
     error("结束")
-//    htmlFiles.forEach(::getFileResult)
 }
 
-fun output(lines: List<List<String?>>) {
-    val file = File("d:\\write.csv")
+fun output(lines: List<List<String?>>, fileName: String) {
+    val file = File(fileName)
     val writer = BufferedWriter(
             OutputStreamWriter(
                     FileOutputStream(file), "GBK"))
@@ -54,8 +43,8 @@ fun getLines(hosts: List<Host>): List<List<String?>> {
                 result.add(listOf(
                         host.ip, host.os, host.louDongScore, host.zhuJiScore,
                         row.port, row.protocol, row.service,
-                        vul.level, vul.title,
-                        vul.desc, vul.answer, vul.score,
+                        getLevelName(vul.level), vul.title,
+                        vul.desc?.replace("<br/>", ""), vul.answer?.replace("<br/>", ""), vul.score,
                         vul.CNVD, vul.CVE, vul.CVSS
                 ))
             }
@@ -105,14 +94,7 @@ class Row(val port: String, val protocol: String, val service: String, vulnerabi
 }
 
 class Vulnerability(val level: String, val title: String, private val extTableName: String) {
-    /**
-     * a)     详细描述
-    b)     解决办法
-    c)      威胁分值
-    d)     CVE编号
-    e)     CVSS评分
-    f)      CNVD编号
-     */
+
     val desc: String? by lazy {
         getMatch(extTableName, "详细描述</th>\\s+<td>([\\S\\s]+?)</td>".toRegex())
     }
